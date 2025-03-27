@@ -1,0 +1,18 @@
+
+{
+        "theme_color": "#ffb6c1",
+        "background_color": "#ffb6c1",
+        "display": "browser",
+        "orientation": "portrait",
+        "scope": "/",
+        "start_url": "/pwa/",
+        "icons":
+        [
+            {
+                "src": "./icon.png",
+                "sizes": "512x512",
+                "type": "image/png"
+
+            }
+        ]
+}
