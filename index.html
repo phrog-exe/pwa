@@ -1,59 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aplikacja pogodowa</title>
+    <link rel="icon" href="favicon.png" type="image/png">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#ffb6c1">
+    <title>UserHub - Rejestracja</title>
+
 </head>
 
 <body>
-    <header>
-        <h1>aplikacja pogodowa</h1>
-    </header>
-    <main>
-        <section class="search">
-            <input type="text" placeholder="podaj nazwę miasta">
-            <button>Sprawdź pogodę!</button>
-            <p class="error_message"></p>
-        </section>
-        <section class="weather_top">
-            <h2 class="city_name"></h2>
-            <div>
-                <img src="" alt="" class="weather_img">
-                <p class="temp"></p>
+    <div class="container">
+        <h1>Rejestracja</h1>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="username">Nazwa użytkownika</label>
+                <input type="text" id="username" name="username">
+                <div id="usernameError" class="error"></div>
             </div>
-            <p class="description"></p>
-        </section>
-        <section class="weather_bottom">
-            <p>Temperatura odczuwalna: <span class="feels_like"></span></p>
-            <p>Ciśnienie powietrza: <span class="pressure"></span><span class=""></span></p>
-            <p>Wilgotność: <span class="humidity"></span></p>
-            <p>Prędkość wiatru: <span class="wind_speed"></span></p>
-            <p>Zachmurzenie: <span class="clouds"></span></p>
-            <p>Widoczność: <span class="visibility"></span></p>
-        </section>
-        <section>
-
-            <h3>Zanieczyszczenie powietrza</h3>
-            <div>
-                <img src="./pm25.png" alt="" class="pollution_img">
-                <span class="pollution_value"></span>
-                <span>&micro;g/m<sup>3</sup></span>
+            <div class="form-group">
+                <label for="email">Adres email</label>
+                <input type="email" id="email" name="email">
+                <div id="emailError" class="error"></div>
             </div>
-        </section>
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <input type="password" id="password" name="password">
+                <div id="passwordError" class="error"></div>
+                <div class="password-requirements">
+                    <p>Hasło musi zawierać:</p>
+                    <ul>
+                        <li id="lengthReq">Minimum 8 znaków</li>
+                        <li id="lowerReq">Przynajmniej jedną małą literę</li>
+                        <li id="upperReq">Przynajmniej jedną wielką literę</li>
+                        <li id="digitReq">Przynajmniej jedną cyfrę</li>
+                        <li id="specialReq">Przynajmniej jeden znak specjalny</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Potwierdź hasło</label>
+                <input type="password" id="confirmPassword" name="confirmPassword">
+                <div id="confirmPasswordError" class="error"></div>
+            </div>
+            <button type="submit">Zarejestruj się</button>
 
 
-    </main>
-    <footer>
-        <p>Projekt WSB Merito Gdańsk 2025`</p>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="./script.js"></script>
-    <script src="./sw.js"></script>
+
+            <p><button id="fetchRandomUser">Wypełnij losowym użytkownikiem</button> </p>
+
+
+
+        </form>
+        <div id="successMessage" class="success-message">
+            Rejestracja zakończona pomyślnie!
+        </div>
+    </div>
+
+    <script src="main.js"></script>
 </body>
 
 </html>
