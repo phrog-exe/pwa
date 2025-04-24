@@ -1,72 +1,207 @@
-const input = document.querySelector('input');
-const button = document.querySelector('button');
-const errorMsg = document.querySelector('p.error_message');
-const cityName = document.querySelector('h2.city_name');
-const weatherImg = document.querySelector('img.weather_img');
-const temp = document.querySelector('p.temp');
-const description = document.querySelector('p.description');
-const feelslike = document.querySelector('span.feels_like');
-const pressure = document.querySelector('span.pressure');
-const humidity = document.querySelector('span.humidity');
-const windSpeed = document.querySelector('span.wind_speed');
-const clouds = document.querySelector('span.clouds');
-const visibility = document.querySelector('span.visibility');
-const pollutionImg = document.querySelector('span.pollution_img');
-const pollutionValue = document.querySelector('span.pollution_value');
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('registrationForm');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const successMessage = document.getElementById('successMessage');
+    const fetchButton = document.getElementById('fetchRandomUser');
 
-const apiInfo = {
-    link: 'https://api.openweathermap.org/data/2.5/weather?q=',
-    key: '&appid=39bb0e715918af10cfe7933bc42e5796',
-    units: '&units=metric',
-    lang: '&lang=pl'
-}
+    // Elementy wymagań hasła
+    const lengthReq = document.getElementById('lengthReq');
+    const lowerReq = document.getElementById('lowerReq');
+    const upperReq = document.getElementById('upperReq');
+    const digitReq = document.getElementById('digitReq');
+    const specialReq = document.getElementById('specialReq');
 
-function getWeatherInfo (){
-    const apiInfoCity = input.value;
-    const URL = `${apiInfo.link}${apiInfoCity}${apiInfo.key}${apiInfo.units}${apiInfo.lang}`;
-    console.log(URL);
-    //console.log(URL);
-
-    axios.get(URL).then((response) => {
-        console.log(response.data);
-
-        cityName.textContent = `${response.data.name}, ${response.data.sys.country}`;
-        weatherImg.src = `https://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`;
-        temp.textContent = `${Math.round(response.data.main.temp)} ℃`;
-        description.textContent = `${response.data.weather[0].description}`;
-        feelslike.textContent = `${Math.round(response.data.main.feels_like)} ℃`;
-        pressure.textContent = `${response.data.main.pressure} hPa`;
-        humidity.textContent = `${response.data.main.humidity} %`;
-        visibility.textContent = `${response.data.visibility / 1000} km`;
-        clouds.textContent = `${response.data.clouds.all} %`;
-        windSpeed.textContent = `${Math.round(response.data.wind.speed * 3.6)} km/h`;
-        errorMsg.textContent = "";
-
-        const url_pollution = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${response.data.coord.lat}&
-        lon=${response.data.coord.lon}${apiInfo.key}`;
-        axios.get(url_pollution).then((res) => {
-            console.log(res.data);
-            pollutionValue.textContent =`${res.data.list[0].components.pm2_5}`;
-        })
-
-    }).catch((error) => {
-        errorMsg.textContent = `${error.response.data.message}`;
-        [cityName, temp, description, feelslike, pressure, humidity, visibility, clouds, windSpeed].forEach(el => {
-            el.textContent = '';
-        })
-        weatherImg.src = '';
-
-    }).finally(() => {
-        input.value = '';
-    })
-
-}
-
-function getWeatherInfoByEnter (e){
-    if(e.key == 'Enter') {
-        getWeatherInfo();
+    // Funkcje pomocnicze do wyświetlania błędów
+    function showError(input, message) {
+        const errorElement = document.getElementById(input.id + 'Error');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        input.classList.add('invalid');
     }
-}
 
-button.addEventListener('click', getWeatherInfo);
-input.addEventListener('keypress', getWeatherInfoByEnter);
+    function hideError(input) {
+        const errorElement = document.getElementById(input.id + 'Error');
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+        input.classList.remove('invalid');
+    }
+
+    // Walidacja nazwy użytkownika
+    function validateUsername() {
+        const value = username.value.trim();
+        if (value === '') {
+            showError(username, 'Nazwa użytkownika jest wymagana');
+            return false;
+        } else if (value.length < 3) {
+            showError(username, 'Nazwa użytkownika musi mieć co najmniej 3 znaki');
+            return false;
+        } else if (value.length > 20) {
+            showError(username, 'Nazwa użytkownika nie może być dłuższa niż 20 znaków');
+            return false;
+        } else {
+            hideError(username);
+            return true;
+        }
+    }
+
+    // Walidacja email
+    function validateEmail() {
+        const value = email.value.trim();
+
+        const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+        if (value === '') {
+            showError(email, 'Adres email jest wymagany');
+            return false;
+        } else if (!emailRegex.test(value)) {
+            showError(email, 'Proszę podać prawidłowy adres email');
+            return false;
+        } else {
+            hideError(email);
+            return true;
+        }
+    }
+
+    // Rozbudowana walidacja hasła
+    function validatePassword() {
+        const value = password.value;
+
+        // Sprawdzenie długości hasła
+        const isLengthValid = value.length >= 8;
+        toggleClass(lengthReq, isLengthValid);
+
+        // Sprawdzenie małych liter
+        const hasLowerCase = /[a-z]/.test(value);
+        toggleClass(lowerReq, hasLowerCase);
+
+        // Sprawdzenie wielkich liter
+        const hasUpperCase = /[A-Z]/.test(value);
+        toggleClass(upperReq, hasUpperCase);
+
+        // Sprawdzenie cyfr
+        const hasDigit = /[0-9]/.test(value);
+        toggleClass(digitReq, hasDigit);
+
+        // Sprawdzenie znaków specjalnych
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+        toggleClass(specialReq, hasSpecialChar);
+
+        // Sprawdzenie wszystkich wymagań
+        const isValid = isLengthValid && hasLowerCase && hasUpperCase && hasDigit && hasSpecialChar;
+
+        if (value === '') {
+            showError(password, 'Hasło jest wymagane');
+            return false;
+        } else if (!isValid) {
+            showError(password, 'Hasło nie spełnia wszystkich wymagań');
+            return false;
+        } else {
+            hideError(password);
+            return true;
+        }
+    }
+
+    // Pomocnicza funkcja do zaznaczania spełnionych wymagań hasła
+    function toggleClass(element, isValid) {
+        if (isValid) {
+            element.classList.add('valid');
+        } else {
+            element.classList.remove('valid');
+        }
+    }
+
+    // Walidacja potwierdzenia hasła
+    function validateConfirmPassword() {
+        const passwordValue = password.value;
+        const confirmValue = confirmPassword.value;
+
+        if (confirmValue === '') {
+            showError(confirmPassword, 'Potwierdzenie hasła jest wymagane');
+            return false;
+        } else if (confirmValue !== passwordValue) {
+            showError(confirmPassword, 'Hasła nie są zgodne');
+            return false;
+        } else {
+            hideError(confirmPassword);
+            return true;
+        }
+    }
+
+    // Nasłuchiwanie na zdarzenia input dla wszystkich pól
+    username.addEventListener('input', validateUsername);
+    email.addEventListener('input', validateEmail);
+    password.addEventListener('input', validatePassword);
+    confirmPassword.addEventListener('input', validateConfirmPassword);
+
+    // Obsługa zdarzenia submit formularza
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Wykonaj walidację wszystkich pól
+        const isUsernameValid = validateUsername();
+        const isEmailValid = validateEmail();
+        const isPasswordValid = validatePassword();
+        const isConfirmPasswordValid = validateConfirmPassword();
+
+        // Jeśli wszystkie pola są poprawne, pokaż komunikat o sukcesie
+        if (isUsernameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid) {
+            form.style.display = 'none';
+            successMessage.style.display = 'block';
+        }
+    });
+
+    // Funkcja do wypełniania losowymi danymi
+    function fillWithRandomUser() {
+        // Zapobiegamy domyślnemu zachowaniu przycisku w formularzu
+        event.preventDefault();
+
+        fetch('https://randomuser.me/api/')
+            .then(response => response.json())
+            .then(data => {
+                const user = data.results[0];
+
+                // Wypełnij pola formularza
+                username.value = user.login.username;
+                email.value = user.email;
+
+                // Stałe silne hasło spełniające wszystkie wymagania
+                const strongPassword = "StrongP@ss123";
+                password.value = strongPassword;
+                confirmPassword.value = strongPassword;
+
+                // Ręczne wywołanie walidacji dla wszystkich pól
+
+                hideError(username);
+                hideError(email);
+                hideError(password);
+                hideError(confirmPassword);
+
+                // Aktualizuj wskaźniki wymagań hasła
+                toggleClass(lengthReq, true);
+                toggleClass(lowerReq, true);
+                toggleClass(upperReq, true);
+                toggleClass(digitReq, true);
+                toggleClass(specialReq, true);
+
+                return false; // Aby zatrzymać dalsze przetwarzanie formularza
+            })
+            .catch(error => {
+                console.error('Błąd podczas pobierania danych:', error);
+            });
+
+        return false; // Dodatkowe zabezpieczenie, aby zapobiec przesłaniu formularza
+    }
+
+    // Dodaj nasłuchiwanie na przycisk wypełniania losowymi danymi
+    fetchButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Zatrzymanie domyślnej akcji formularza
+        fillWithRandomUser();
+        return false;
+    });
+
+
+    fillWithRandomUser();
+});
